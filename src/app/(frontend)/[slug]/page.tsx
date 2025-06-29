@@ -1,22 +1,22 @@
 import type { Metadata } from 'next'
 
 import { PayloadRedirects } from '@/components/PayloadRedirects'
-import configPromise from '@payload-config'
-import { getPayload, type RequiredDataFromCollectionSlug } from 'payload'
-import { draftMode } from 'next/headers'
-import React, { cache } from 'react'
 import { homeStatic } from '@/endpoints/seed/home-static'
+import configPromise from '@payload-config'
+import { draftMode } from 'next/headers'
+import { getPayload, type RequiredDataFromCollectionSlug } from 'payload'
+import { cache } from 'react'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
+import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
-import { LivePreviewListener } from '@/components/LivePreviewListener'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
   const pages = await payload.find({
-    collection: 'pages',
+    collection: 'websites',
     draft: false,
     limit: 1000,
     overrideAccess: false,
@@ -48,7 +48,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   const { slug = 'home' } = await paramsPromise
   const url = '/' + slug
 
-  let page: RequiredDataFromCollectionSlug<'pages'> | null
+  let page: RequiredDataFromCollectionSlug<'websites'> | null
 
   page = await queryPageBySlug({
     slug,
@@ -63,16 +63,16 @@ export default async function Page({ params: paramsPromise }: Args) {
     return <PayloadRedirects url={url} />
   }
 
-  const { hero, layout } = page
+  const { hero, layout, header } = page
 
   return (
     <article className="pt-16 pb-24">
       <PageClient />
       {/* Allows redirects for valid pages too */}
-      <PayloadRedirects disableNotFound url={url} />
+      {/* <PayloadRedirects disableNotFound url={url} /> */}
 
       {draft && <LivePreviewListener />}
-
+      {/* <RenderHeader {...header} /> */}
       <RenderHero {...hero} />
       <RenderBlocks blocks={layout} />
     </article>
@@ -94,7 +94,7 @@ const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
   const payload = await getPayload({ config: configPromise })
 
   const result = await payload.find({
-    collection: 'pages',
+    collection: 'websites',
     draft,
     limit: 1,
     pagination: false,

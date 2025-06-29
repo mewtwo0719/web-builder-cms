@@ -6,20 +6,20 @@ import {
   type DefaultTypedEditorState,
 } from '@payloadcms/richtext-lexical'
 import {
+  RichText as ConvertRichText,
   JSXConvertersFunction,
   LinkJSXConverter,
-  RichText as ConvertRichText,
 } from '@payloadcms/richtext-lexical/react'
 
 import { CodeBlock, CodeBlockProps } from '@/blocks/Code/Component'
 
+import { BannerBlock } from '@/blocks/Banner/Component'
+import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import type {
   BannerBlock as BannerBlockProps,
   CallToActionBlock as CTABlockProps,
   MediaBlock as MediaBlockProps,
 } from '@/payload-types'
-import { BannerBlock } from '@/blocks/Banner/Component'
-import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { cn } from '@/utilities/ui'
 
 type NodeTypes =
@@ -37,7 +37,64 @@ const internalDocToHref = ({ linkNode }: { linkNode: SerializedLinkNode }) => {
 
 const jsxConverters: JSXConvertersFunction<NodeTypes> = ({ defaultConverters }) => ({
   ...defaultConverters,
+
   ...LinkJSXConverter({ internalDocToHref }),
+
+  paragraph: ({ node }) => {
+    return (
+      <p>
+        {node.children.map((child, i) => {
+          if (child.type === 'text') {
+            const text = child.text
+            const stateAttrs = (child as any)['$'] || {}
+            const style: React.CSSProperties = {}
+
+            // Custom color styles
+            switch (stateAttrs.color) {
+              case 'galaxy':
+                style.background = 'linear-gradient(to right, #0000ff, #ff0000)'
+                style.color = 'white'
+                break
+              case 'sunset':
+                style.background = 'linear-gradient(to top, #ff5f6d, #6a3093)'
+                style.color = 'white'
+                break
+              case 'text-pink':
+                style.color = 'pink'
+                break
+              case 'bg-red':
+                style.background = 'red'
+                style.color = 'white'
+                break
+            }
+
+            // Underline styles
+            switch (stateAttrs.underline) {
+              case 'solid':
+                style.textDecoration = 'underline'
+                style.textUnderlineOffset = '4px'
+                break
+              case 'yellow-dashed':
+                style.textDecoration = 'underline dashed'
+                style.textDecorationColor = 'yellow'
+                style.textUnderlineOffset = '4px'
+                break
+            }
+
+            return (
+              <span key={i} style={style}>
+                {text}
+              </span>
+            )
+          } else {
+            // Not a text node: fallback to default rendering (you can expand this as needed)
+            return null
+          }
+        })}
+      </p>
+    )
+  },
+
   blocks: {
     banner: ({ node }) => <BannerBlock className="col-start-2 mb-4" {...node.fields} />,
     mediaBlock: ({ node }) => (

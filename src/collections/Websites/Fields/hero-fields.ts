@@ -16,16 +16,6 @@ export const hero: Field = {
   type: 'group',
   fields: [
     {
-      name: 'logo',
-      type: 'upload',
-      // admin: {
-      //   condition: (_, { type } = {}) => ['highImpact', 'mediumImpact'].includes(type),
-      // },
-      relationTo: 'media',
-      required: true,
-    },
-
-    {
       name: 'type',
       type: 'select',
       defaultValue: 'lowImpact',

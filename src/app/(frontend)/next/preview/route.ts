@@ -29,6 +29,7 @@ export async function GET(
   }
 
   if (!path || !collection || !slug) {
+    console.log('Path: ', path, '\nCollection: ', collection, '\nSlug: ', slug)
     return new Response('Insufficient search params', { status: 404 })
   }
 
